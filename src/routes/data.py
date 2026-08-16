@@ -87,4 +87,3 @@ async def process_endpoint(project_id: str, process_request: ProcessRequest):
     )
     
   return file_chunks
-

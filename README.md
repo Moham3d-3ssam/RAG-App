@@ -85,12 +85,8 @@ This step includes:
    
 2) Chunking the text into documents
 
-![alt text](assets/images/1.png)
-
 3) Indexing the documents into LanceDB
    
-![alt text](assets/images/2.png)
-
 ```bash
 curl --location --request POST 'http://localhost:5000/api/v1/process/1' \
 --header 'Content-Type: application/json' \
@@ -109,8 +105,6 @@ This step includes:
 1) Convert query text to embeddings
    
 2) Search for similar documents using the embeddings / or / keywords
-
-![alt text](assets/images/3.png)
 
 ```bash
 curl --location --request POST 'http://localhost:5000/api/v1/search/1' \
@@ -133,8 +127,6 @@ This step includes:
 3) Create a prompt including the query and the similar documents
    
 4) Pass the prompt to the LLM model to get the answer
-   
-![alt text](assets/images/4.png)
 
 ```bash
 curl --location --request POST 'http://localhost:5000/api/v1/answer/1' \

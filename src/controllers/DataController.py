@@ -45,4 +45,3 @@ class DataController(BaseController):
     cleaned_file_name = cleaned_file_name.replace(" ", "_")
     
     return cleaned_file_name
-    

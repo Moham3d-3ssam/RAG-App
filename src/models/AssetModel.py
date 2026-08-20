@@ -28,3 +28,9 @@ class AssetModel(BaseDataModel):
           unique=index["unique"]
         )
 
+  async def create_asset(self, asset: Asset):
+    
+    result = await self.collection.insert_one(asset.dict(by_alias=True, exclude_unset=True))
+    asset._id = result.inserted_id
+    
+    return asset

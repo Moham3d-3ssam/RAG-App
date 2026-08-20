@@ -1,6 +1,7 @@
 from .BaseDataModel import BaseDataModel
 from .db_schemes import Asset
 from .enums.DataBaseEnum import DataBaseEnum
+from bson import ObjectId
 
 
 class AssetModel(BaseDataModel):
@@ -34,3 +35,9 @@ class AssetModel(BaseDataModel):
     asset._id = result.inserted_id
     
     return asset
+  
+  async def get_all_project_assets(self, assest_project_id: str):
+    
+    return await self.collection.find({
+      "assest_project_id": ObjectId(assest_project_id) if isinstance(assest_project_id, str) else assest_project_id
+    }).to_list(length=None)

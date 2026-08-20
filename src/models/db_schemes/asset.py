@@ -28,7 +28,7 @@ class Asset(BaseModel):
       },
       {
         "key": [
-          ("asset_project_id", 1)
+          ("asset_project_id", 1),
           ("asset_name", 1)
         ],
         "name": "asset_project_id_name_index_1",

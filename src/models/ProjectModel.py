@@ -57,4 +57,4 @@ class ProjectModel(BaseDataModel):
     async for document in cursor:
       projects.append(Project(**document))
 
-    return projects, 
+    return projects, total_pages

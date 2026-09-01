@@ -1,4 +1,5 @@
 from ..LLMInterface import LLMInterface
+from ..LLMEnums import OpenAIEnums
 from openai import OpenAI
 import logging
 
@@ -39,7 +40,7 @@ class OpenAIProvider(LLMInterface):
     self.embedding_size = embedding_size
   
   
-  def generate_text(self, prompt: str, chat_histroy: list=[], max_output_tokens: int=None,
+  def generate_text(self, prompt: str, chat_history: list=[], max_output_tokens: int=None,
                     temperature: float = None):
     
     if not self.client:
@@ -52,6 +53,22 @@ class OpenAIProvider(LLMInterface):
     
     max_output_tokens = max_output_tokens if max_output_tokens else self.default_generation_max_output_tokens
     temperature = temperature if temperature else self.default_generation_temperature
+    
+    chat_history.append(
+      self.construct_prompt(prompt=prompt, role=OpenAIEnums.USER.value)
+    )
+    
+    response = self.client.chat.completions.create(
+      model = self.generation_model_id,
+      messages = chat_history,
+      max_tokens = max_output_tokens,
+      temperature =temperature
+    )
+    
+    if not response or not response.choices or len(response.choices) == 0 or not response.choices[0].message:
+      self.logger.error("Error while generating text with OpenAI")
+    
+    return response.choices[0].message["content"]
   
   
   def embed_text(self, text: str, document_type: str):
@@ -74,3 +91,10 @@ class OpenAIProvider(LLMInterface):
       return None
     
     return response.data[0].embedding
+  
+  
+  def construct_prompt(self, prompt: str, role: str):
+    return {
+      "role": role,
+      "content": prompt
+    }

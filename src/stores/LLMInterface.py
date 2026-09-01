@@ -11,7 +11,7 @@ class LLMInterface(ABC):
     pass
   
   @abstractmethod
-  def generate_text(self, prompt: str, max_output_tokens: int,
+  def generate_text(self, prompt: str, chat_histroy: list=[], max_output_tokens: int=None,
                     temperature: float = None):
     pass
   

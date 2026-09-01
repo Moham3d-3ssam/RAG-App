@@ -74,4 +74,3 @@ class OpenAIProvider(LLMInterface):
       return None
     
     return response.data[0].embedding
-

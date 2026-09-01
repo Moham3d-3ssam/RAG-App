@@ -28,17 +28,31 @@ class OpenAIProvider(LLMInterface):
     )
     
     self.logger = logging.getLogger(__name__)
-    
+  
+  
   def set_generation_model(self, model_id: str):
     self.generation_model_id = model_id
+  
   
   def set_embedding_model(self, model_id: str, embedding_size: int):
     self.embedding_model_id = model_id
     self.embedding_size = embedding_size
   
+  
   def generate_text(self, prompt: str, max_output_tokens: int,
                     temperature: float = None):
-    raise NotImplementedError
+    
+    if not self.client:
+      self.logger.error("OpenAI client was not set")
+      return None
+    
+    if not self.generation_model_id:
+      self.logger.error("Generation model for OpenAI was not set")
+      return None
+    
+    max_output_tokens = max_output_tokens if max_output_tokens else self.default_generation_max_output_tokens
+    temperature = temperature if temperature else self.default_generation_temperature
+  
   
   def embed_text(self, text: str, document_type: str):
     

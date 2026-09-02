@@ -8,8 +8,7 @@ class OpenAIProvider(LLMInterface):
   def __init__(self, api_key: str, api_url: str=None,
                      default_input_max_characters: int=1000,
                      default_generation_max_output_tokens: int=1000,
-                     default_generation_temperature: float=0.1,
-                     ):
+                     default_generation_temperature: float=0.1):
     
     self.api_key = api_key
     self.api_url = api_url
@@ -38,6 +37,10 @@ class OpenAIProvider(LLMInterface):
   def set_embedding_model(self, model_id: str, embedding_size: int):
     self.embedding_model_id = model_id
     self.embedding_size = embedding_size
+  
+  
+  def process_text(self, text: str):
+    return text[:self.default_input_max_characters].strip()
   
   
   def generate_text(self, prompt: str, chat_history: list=[], max_output_tokens: int=None,
@@ -96,5 +99,5 @@ class OpenAIProvider(LLMInterface):
   def construct_prompt(self, prompt: str, role: str):
     return {
       "role": role,
-      "content": prompt
+      "content": self.process_text(prompt)
     }

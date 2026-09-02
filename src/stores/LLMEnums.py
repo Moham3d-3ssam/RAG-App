@@ -8,8 +8,15 @@ class OpenAIEnums(Enum):
   SYSTEM = "system"
   USER = "user"
   ASSISTANT = "assistant"
+  
+  DOCUMENT = "search_document"
+  QUERY = "search_query"
 
 class CoHereEnums(Enum):
   SYSTEM = "SYSTEM"
   USER = "USER"
   ASSISTANT = "CHATBOT"
+
+class DocumentTypeEnum(Enum):
+  DOCUMENT = "document"
+  QUERY = "query"

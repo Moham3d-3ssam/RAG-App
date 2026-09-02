@@ -71,7 +71,7 @@ class OpenAIProvider(LLMInterface):
     return response.choices[0].message["content"]
   
   
-  def embed_text(self, text: str, document_type: str):
+  def embed_text(self, text: str, document_type: str = None):
     
     if not self.client:
       self.logger.error("OpenAI client was not set")

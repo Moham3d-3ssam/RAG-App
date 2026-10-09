@@ -2,6 +2,9 @@ from fastapi import FastAPI, APIRouter, status, Request
 from fastapi.responses import JSONResponse
 from routes.schemes.nlp import PushRequest
 from models.ProjectModel import ProjectModel
+from models.ChunkModel import ChunkModel
+from controllers import NLPController
+from models import ResponseSignal
 import logging
 
 logger = logging.getLogger("uvicorn.error")
@@ -21,3 +24,39 @@ async def index_project(request: Request, projec_id: str, push_request: PushRequ
   project = project_model.get_project_or_create_one(
     project_id=projec_id
   )
+  
+  chunk_model = await ChunkModel.create_instance(
+    db_client=request.app.db_client
+  )
+  
+  if not project:
+    return JSONResponse(
+      status_code=status.HTTP_400_BAD_REQUEST,
+      content={
+        "signal": ResponseSignal.PROJECT_NOT_FOUND_ERROR.value
+      }
+    )
+  
+  nlp_controller = NLPController(
+    vectordb_client=request.app.vectordb_client,
+    generation_client=request.app.generation_client,
+    embedding_client=request.app.embedding_client,
+  )
+  
+  has_records = True
+  page_no = 1
+  
+  while has_records:
+    page_chunks = chunk_model.get_project_chunks(project_id=project.id, page_no=page_no)
+    if len(page_chunks):
+      page_no += 1
+    
+    if not page_chunks or len(page_chunks) == 0:
+      has_records = False
+      break
+    
+    is_inserted = nlp_controller.index_info_vector_db(
+      project=project,
+      chunks=page_chunks,
+      do_reset=push_request.do_rest
+    )

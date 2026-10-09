@@ -30,7 +30,7 @@ async def startup_span():
   app.vectordb_clinet = vectordb_provider_factory.create(
     provider=settings.VECTOR_DB_BACKEND
   )
-  app.vectordb_clinet.conncet()
+  app.vectordb_clinet.connect()
 
 @app.on_event("shutdown")
 async def shutdown_span():

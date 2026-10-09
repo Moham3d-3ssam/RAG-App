@@ -27,4 +27,32 @@ class NLPController(BaseController):
   
   def index_info_vector_db(self, project: Project, chunks: List[DataChunk],
                            do_reset: bool = False):
-    pass
+    
+    # Step1: Get Collection Name
+    collection_name = self.create_collection_name(project_id=project.project_id)
+    
+    # Step2: Manage Items
+    texts = [c.chunk_text for c in chunks]
+    metadata = [c.chunk_metadata for c in chunks]
+    vectors = [
+      self.embedding_client.embed_text(text=text,
+                                       document_type=DocumentTypeEnum.DOCUMENT.value)
+      for text in texts
+    ]
+    
+    # Step3: Create Collection If Not Exists
+    _ = self.vectordb_client.create_collection(
+      collection_name=collection_name,
+      embedding_size=self.embedding_client.embedding_size,
+      do_reset=do_reset
+    )
+    
+    # Step4: Insert Into Vector DB
+    _ = self.vectordb_client.insert_many(
+      collection_name=collection_name,
+      texts=texts,
+      metadata=metadata,
+      vectors=vectors
+    )
+    
+    return True

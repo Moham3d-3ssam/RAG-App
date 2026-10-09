@@ -27,15 +27,15 @@ async def startup_span():
                                             embedding_size=settings.EMBEDDING_MODE_SIZE)
   
   # vector db client
-  app.vectordb_clinet = vectordb_provider_factory.create(
+  app.vectordb_client = vectordb_provider_factory.create(
     provider=settings.VECTOR_DB_BACKEND
   )
-  app.vectordb_clinet.connect()
+  app.vectordb_client.connect()
 
 @app.on_event("shutdown")
 async def shutdown_span():
   app.mongo_conn.close()
-  app.vectordb_clinet.disconnect()
+  app.vectordb_client.disconnect()
 
 app.include_router(base.base_router)
 app.include_router(data.data_router)

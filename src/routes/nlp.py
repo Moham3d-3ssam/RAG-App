@@ -14,15 +14,15 @@ nlp_router = APIRouter(
   tags = ["api_v1", "nlp"]
 )
 
-nlp_router.post("/index/push/{project_id}")
-async def index_project(request: Request, projec_id: str, push_request: PushRequest):
+@nlp_router.post("/index/push/{project_id}")
+async def index_project(request: Request, project_id: str, push_request: PushRequest):
   
   project_model = await ProjectModel.create_instance(
     db_client=request.app.db_client
   )
   
-  project = project_model.get_project_or_create_one(
-    project_id=projec_id
+  project = await project_model.get_project_or_create_one(
+    project_id=project_id
   )
   
   chunk_model = await ChunkModel.create_instance(
@@ -43,20 +43,49 @@ async def index_project(request: Request, projec_id: str, push_request: PushRequ
     embedding_client=request.app.embedding_client,
   )
   
+  
   has_records = True
   page_no = 1
-  
-  while has_records:
-    page_chunks = chunk_model.get_project_chunks(project_id=project.id, page_no=page_no)
-    if len(page_chunks):
-      page_no += 1
-    
-    if not page_chunks or len(page_chunks) == 0:
-      has_records = False
-      break
-    
-    is_inserted = nlp_controller.index_info_vector_db(
+  inserted_items_count = 0
+
+  page_chunks = await chunk_model.get_project_chunks(
+      project_id=project.id,
+      page_no=page_no
+  )
+
+  if not page_chunks:
+      return JSONResponse(
+          status_code=status.HTTP_400_BAD_REQUEST,
+          content={
+              "signal": ResponseSignal.INSERT_INTO_VECTORDB_ERROR.value
+          }
+      )
+
+  # Keep only the first 5 chunks for testing
+  page_chunks = page_chunks[:5]
+  chunks_ids = list(range(len(page_chunks)))
+
+  is_inserted = nlp_controller.index_info_vector_db(
       project=project,
       chunks=page_chunks,
-      do_reset=push_request.do_rest
+      do_reset=push_request.do_reset,
+      chunks_ids=chunks_ids
+  )
+
+  if not is_inserted:
+      return JSONResponse(
+          status_code=status.HTTP_400_BAD_REQUEST,
+          content={
+              "signal": ResponseSignal.INSERT_INTO_VECTORDB_ERROR.value
+          }
+      )
+
+  inserted_items_count = len(page_chunks)
+
+  
+  return JSONResponse(
+      content={
+        "signal": ResponseSignal.INSERT_INTO_VECTORDB_SUCCESS.value,
+        "inserted_items_count": inserted_items_count
+      }
     )

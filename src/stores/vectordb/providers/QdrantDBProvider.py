@@ -109,11 +109,11 @@ class QdrantDBProvider(VectorDBInterface):
           id=batch_record_ids[x],
           vector=batch_vectors[x],
           payload={
-            "text:": batch_texts[x],
+            "text": batch_texts[x],
             "metdata": batch_metadata[x]
           }
         )
-        for x in range(len(texts))
+        for x in range(len(batch_texts))
       ]
       
       try:

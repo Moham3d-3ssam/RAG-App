@@ -59,6 +59,9 @@ async def index_project(request: Request, project_id: str, push_request: PushReq
       break
     
     remaining = max_chunks - inserted_items_count
+    if remaining <= 0:
+      break
+    
     page_chunks = page_chunks[:remaining]
     
     chunks_ids = list(range(idx, idx + len(page_chunks)))
@@ -67,7 +70,7 @@ async def index_project(request: Request, project_id: str, push_request: PushReq
     is_inserted = nlp_controller.index_info_vector_db(
       project=project,
       chunks=page_chunks,
-      do_reset=push_request.do_reset,
+      do_reset=push_request.do_reset if page_no == 2 else False,
       chunks_ids=chunks_ids
     )
     
@@ -146,6 +149,6 @@ async def search_index(request: Request, project_id: str, search_request: Search
   return JSONResponse(
       content={
         "signal": ResponseSignal.VECROEDB_SEARCH_success.value,
-        "results": results
+        "results": [result.dict() for result in results]
       }
     )

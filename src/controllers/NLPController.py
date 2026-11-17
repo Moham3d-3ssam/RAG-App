@@ -85,3 +85,19 @@ class NLPController(BaseController):
       return False
     
     return results
+
+  def answer_rag_questions(self, project: Project, query: str, limit: int = 10):
+    
+    # Step1: Retrieve Related Documents
+    retrieved_documents = self.search_vector_db_collection(
+      project=project,
+      text=query,
+      limit=limit
+    )
+    
+    if not retrieved_documents or len(retrieved_documents) == 0:
+      return None
+    
+    # Step2: Construct LLM Prompt
+    system_prompt = """
+    """
